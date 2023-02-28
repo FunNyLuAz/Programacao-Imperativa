@@ -1,0 +1,9 @@
+gcc -c -o tabela.o tabela.c
+gcc -c -o p1.o p1.c
+gcc -o p1 tabela.o p1.o
+p1 dados.txt dados.bin
+
+gcc -c -o tabela.o tabela.c
+gcc -c -o p2.o p2.c
+gcc -o p2 tabela.o p2.o
+p2 dados.bin resultados.txt
