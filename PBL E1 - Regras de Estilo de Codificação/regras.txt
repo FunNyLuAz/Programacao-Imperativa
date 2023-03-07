@@ -1,0 +1,277 @@
+#1
+Don't ever use easily confused single-letter variable names - don't rely on the font!
+	Lower-case L (l), upper-case i (I) are too easily confused with each other and the digit one.
+	Similarly with upper-case O and digit zero.
+##
+
+#2
+Do not use cute or humorous names, especially if they don't help communicate the
+purpose of the code.
+	Bad: delete victim; // there is no "victim" here
+	Better: delete node_ptr; // there is a node that we are deleting
+	Bad: zap(); // sure, it's cute, but what does it do?
+	Better: clear_pointers(); // ok - this function clears some pointers.
+
+Use upper/lower mixed case or underscores to improve readability of explanatory names.
+	Bad: void processallnonzerodata();
+	Good: void ProcessAllNonZeroData();
+	Good: void process_all_non_zero_data();
+##
+
+#3
+Don't start variable or function names or #define symbols with underscores.
+	Leading underscores are reserved for the implementation - break this rule, and you risk name
+	collisions leading to confusing errors.
+
+Use variable names that do not have to be documented or explained - longer is usually
+better.
+	Worst: x;
+	Bad: bsl;
+	Good: binding_set_list;
+
+Don't include implementation details such as variable type information in variable names -
+prefer to emphasize purpose instead.
+	Bad: int count_int;
+	Bad: const char * ptr_to_const_chars;
+	Better: int count;
+	Better: const char * input_ptr;
+	How to tell: What if I need to change the variable type to a similar but different type? E.g. long ints,
+	wide characters. Would it be important to change the variable names to match? If so, implementation
+	details are exposed in the variable names.
+
+* Prefer using a switch statement to if-else-if constructions to select actions depending on
+the value of a single variable.
+	Generally results in simpler, clearer, and faster code than the equivalent series of if-else if statements.
+		Exceptions: switch statement cannot be used if strings or floating point values are being tested.
+		Not a good choice if ranges of integer values are being tested.
+	Always include a default case with an appropriate action (e.g. an error message or assertion).
+	Terminate each case with a break statement unless you deliberately want to arrange "drop through" to
+	the next case; if so, you must comment on it.
+##
+
+#4
+Prefer double to float.
+	Only use of float: if memory space needs to be saved, or required by an API.
+	Note that in C89 (at least) float argument values are automatically converted to double in function
+	calls.
+
+* Do not assume that two float or double values will compare equal even if mathematically
+they should.
+	Only case where they will: small to moderately large integer values have been assigned (as opposed
+	to computed and then assigned).
+	Otherwise, code should test for a range of values rather than strict equality.
+##
+
+#5
+* Take names seriously - they are a major way to communicate your design intent to the
+future human reader (either yourself or somebody else).
+	Poor names are a major obstacle to understanding code.
+
+* Prefer "flat" code to nested code.
+Deeply nested code is hard to read and fragile to modify. Prefer a code organization of a "flat" series
+of condition-controlled short code segments. This may require re-arranging the logic, but the result is
+simpler and easier to work with.
+	Bad:
+	if(...) {
+		...
+		if(...) {
+			...
+			if(...) {
+				...
+				if(...) {
+					...
+					}
+				...
+				}
+			...
+			}
+		... // I'm lost - just when does this code execute?
+		}
+	Better:
+	if(...) {
+		...
+		}
+	else if(...) {
+		...
+		}
+	else if (...) {
+		...
+		}
+	etc
+
+Use a consistent indenting scheme and curly brace scheme.
+	Imitating Kernigan & Ritchie or Stroustrup is certainly one good approach.
+##
+
+#6
+* Prefer to use an enumerated type instead of arbitrary numeric code values.
+	The names in the enumeration express the meaning directly and clearly.
+	Do not use an enumeration if the result is greater program complexity.
+		E.g. translating command strings into enums which are then used to select the relevant code for
+		the command simply doubles the complexity of command-selection code.
+
+Give the type a name starting with an upper-case letter.
+
+The names for the values should be all upper case - this is because the names have file
+scope and we need a reminder that they are a form of constant whose value is present
+everywhere in the file after the declaration, similar conceptually to a #define symbol which
+is also written in all upper case.
+
+Always store and pass enum values in the enum type, even though they convert freely to
+ints.
+	Keep it in the enum type to maintain the clear and direct meaning.
+
+Prefer to use the default for how enum values are assigned by the compiler
+	Bad: enum Fruit_e {APPLE = 0, ORANGE, PEAR, BANANA};// Why? This is the
+	default!
+		Not relying on the default when it is suitable indicates either ignorance or confusion.
+	Bad: enum Fruit_e {APPLE = 3, ORANGE, PEAR, BANANA};// Potential fatal
+	confusion!
+		There needs to be a VERY GOOD reason to override the compiler-assigned values.
+	Good: enum Fruit_e {APPLE, ORANGE, PEAR, BANANA};// Let the compiler keep
+	track!
+
+Understand and use how I/O works with enum values
+	Enums are written as integer values
+	To read an enum value, read an int, check if for the maximum and minimum valid values, and then
+	assign with a cast to the enumerated type.
+
+String literal constants can be given names either as a preprocessor symbol with #define,
+or as a const char * const variable declared and initialized at file scope.
+	#define PROMPT "Enter command"
+	const char * const prompt_msg = "Enter command";
+
+Use functions freely to improve the clarity and organization of the code.
+	Modern machines are very efficient for function calls, so avoiding function calls is rarely required for
+	performance.
+		If it is, prefer inline functions to get both performance and clarity.
+
+Define functions that correspond to the conceptual pieces of work to be done, even if only
+called once or from one place.
+	Clarify the code structure, making coding, debugging, maintenance, easier.
+	E.g. in a spell-checking program, create a function that processes a document by calling a function
+	that processes a line of the document that in turn calls a function that finds each word in the line.
+
+Arrange function definitions in a .c file in a human-readable order corresponding to the
+top-down functional decomposition or usage order of the module.
+	The reader should be able to read the code in increasing order of detail to take advantage of the
+	information-hiding value of functions. So the root(s) for the function call tree should be the first
+	functions listed; leaf functions called only from one branch should appear before the start of the next
+	branch; leaf functions called from all branches should appear last.
+	Don't make the reader rummage through the file trying to find functions listed in a haphazard order.
+
+Be careful with leaving out optional curly braces, especially with if.
+	Clear: a simple thing that also looks simple:
+	if(x == 3)
+		foo(x);
+	But if we later add some more code to the if, it is just too easy to write:
+	if(x == 3)
+		foo(x);
+		zap(); /* uh ... why doesn't it work right? */
+	Uglier but more reliable when coding late at night:
+	if(x == 3) {
+		foo(x);
+		}
+##
+
+7#
+* Numerical or string constants that are "hard coded" or "magic numbers" that are written
+directly in the code are almost always a bad idea, especially if they appear more than
+once.
+
+Prefer for statements over while statements if indexing through an array or counting -
+doing an operation a certain number of times.
+	This puts all of the information about the iteration's bounds in a single place, making the code easier
+	to get right.
+	Never modify the looping variable in the body of the loop.
+
+Ensure that input or data brought into the program cannot overflow the array or memory
+block in which it is to be stored.
+	A basic and essential security and reliability precaution.
+	Assume user or file input can contain arbitrarily long random strings, and write code that can handle it
+	safely and reliably, even if it simply ignores over-length input.
+	Use functions and facilities that specify explicit maximum lengths for input.
+##
+
+#8
+Global variables should never be used simply to avoid defining function parameters.
+	Experience shows that passing information through parameters and returned values actually simplifies
+	program design and debugging - global variables used for this purpose are a common source of
+	difficult-to-find bugs.
+##
+
+#9
+* Prefer to declare and define as pointers to constants rather than initialized arrays of char:
+	Bad: const char message[] = "Goodbye, cruel world!";
+		Requires extra storage for the array, plus time to copy the literal into the array.
+		message is an array sized big enough to hold the string which is copied in at initialization, even
+		though the string has already been stored in memory.
+	Good: const char * const message = "Goodbye, cruel world!";
+		Simply sets a pointer to the string literal already stored in memory.
+		message is a constant pointer to constant characters - neither the pointer nor the characters can
+		be changed.
+
+Write for statements in their conventional form if possible.
+	Good - the conventional, most common form:
+		for(i = 0; i < n; i++) // correct for almost all cases
+	Bad:
+		for(i = 1; i <= n; i++) // confusing - what is this about?
+		for(i = n; i > 0; i--) // better be a good reason for this!
+		for(i = -1; i <= n; i++) // totally confusing!
+##
+
+#10
+* Use functions to avoid duplicating code.
+	Copy-paste coding means copy-pasting bugs and multiplying debugging and modification effort.
+	Concept: Single point of maintenance. If you have to debug or modify, you want one place to do it.
+	How do you tell whether duplicated code should be turned into a function? Move duplicated code into
+	a function if:
+		The code is non-trivial - getting a single point of maintenance is likely to be worthwhile.
+		What the code does can be separated from the context - you can write a function with simple
+		parameters and return value that does the work for each place the duplicated code appears.
+		The result is less total code with the complexity appearing only in a single place - the function -
+		giving a single point of maintenance.
+##
+
+-///////////////////////-
+
+Comments
+
+	See the posted article on comments for more discussion and examples.
+
+	Keep comments up-to-date; at least annotate or delete them if they are no longer valid.
+		Obsolete comments suggest sloppy coding at best, and are often worse than none at all because
+		they confuse and mislead, and cast doubt on all of the other comments. Out-of-date comments will be
+		considered a major failure of code quality.
+
+	* Comments should never simply paraphrase the code.
+		You should assume that the reader knows the language at least as well as you do. The purpose of
+		comments is to explain aspects of the code that will not be obvious to an experienced programmer just
+		by looking at it.
+
+	Comments are for human readers, not the compiler, so place comments where they are
+	most convenient and useful for the human who is looking at the code.
+		This is almost always at the function definition, rather than the function declarations.
+
+	Each function prototype in a header file, and function definition in a .c file, should be
+	preceded by a comment that states the purpose of the function and explains what it does.
+		The function name and parameter names should well chosen, which will help explain how the function
+		is used. If a value is returned, it is important to explain how it is determined - this will usually be less
+		obvious than the role of well-named parameters.
+
+	In a .c file that has a block of function prototypes at the beginning, comments are not
+	required for the function prototypes, but are required on the function definitions.
+		The initial prototypes are declarations for the compiler, and enable the functions to be defined in a
+		readable order, but the prototypes are inconveniently located for the human reader - comments there
+		are wasted.
+
+	The purpose of constants should be commented, especially if they may need to be
+	changed.
+		E.g. a constant for the maximum length of an input line.
+
+	* Comments should appear within a function to explain code whose purpose or operation
+	is obscure or just not obvious.
+		Comments should explain what is being done where the code will be less than completely obvious to
+		the reader. A common student error is comment simple code, but then make no comment at all to
+		explain a chunk of difficult and complicated code that obviously took a lot of work to get right. If it was
+		hard for you to write, it will be hard for a reader to understand!
