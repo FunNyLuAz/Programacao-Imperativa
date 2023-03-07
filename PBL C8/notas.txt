@@ -1,0 +1,6 @@
+5
+Lamport 7.2
+Knuth 9.5
+Tanenbaum 6.4
+Wirth 8.0
+Dijkstra 5.9
